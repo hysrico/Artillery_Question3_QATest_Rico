@@ -1,0 +1,64 @@
+#Config Load Phases
+
+config:
+  target: "https://api-gw-uat.companyx.id/order-api"
+  plugins:
+    expect: {}
+  phases:    
+    - duration: 300
+      arrivalCount: 3000
+      #arrivalRate: 5
+      #rampTo: 50
+      name: LoadTest go-core-order
+
+    #duration: 300
+    #arrivalCount: 2000
+      #arrivalRate: 50
+      #name: Sustained load
+
+environments:
+  dev:
+    target: "https://api-gw-uat.companyx.id/order-api"
+ 
+# 1 LoanCF ID With 10 Investor Id Buying
+payload:
+      path: "dataCF.csv"
+      fields:
+        - "investor_id"
+        - "loan_id"
+
+scenarios:
+
+  - name: Scenario go-core-order
+    weight: 3
+    flow:
+#Request Scenario for Submit go-core-order
+      - get:
+            url: /order-api/api/v1/order
+            headers:
+              Accept: application/json
+              Content-Type: application/json
+            expect:
+              - statusCode: 200
+              - contentType: json
+
+#Request submit order 
+      - post:
+            url: /order-api/api/v1/order/submit
+            #body: '{"1420096": [{{ 1420096 }}] }'
+            headers:
+              Accept: application/json
+              Content-Type: application/json
+            expect:
+              - statusCode: 200
+              - contentType: json
+
+#Request apply voucher - weith asumtion 
+      - post:
+            url: /order-api/api/v1/order/apply-voucher
+            headers:
+              Accept: application/json
+              Content-Type: application/json
+            expect:
+              - statusCode: 200
+              - contentType: json
